@@ -8,7 +8,7 @@ class LineSplitStream extends stream.Transform {
   }
 
   _transform(chunk, encoding, callback) {
-    this.line = chunk.toString().split('').reduce((accum, cur) => {
+    this.line = Array.prototype.reduce.call(chunk.toString(), (accum, cur) => {
       if (cur === os.EOL) {
         this.push(accum);
         return '';
