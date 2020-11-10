@@ -1,37 +1,29 @@
 const stream = require('stream');
 const LimitExceededError = require('./LimitExceededError');
-const fs = require('fs');
 
 class LimitSizeStream extends stream.Transform {
-    constructor({limit, ...options}) {
-        super(options);
-        this.limit = limit || 16000;
+  constructor({limit, ...options}) {
+    super(options);
+    // Must be less than default highWterMark
+    this.limit = limit || 16000;
+  }
+
+  _transform(chunk, encoding, callback) {
+    const data = Buffer.from(chunk);
+    const size = Buffer.byteLength(data);
+
+    this.limit -= size;
+
+    if (this.limit < 0) {
+      callback(new LimitExceededError());
     }
-
-    _transform(chunk, encoding, callback) {
-        const data = Buffer.from(chunk),
-            size = Buffer.byteLength(data);
-
-        console.log('chunk: ', chunk.toString())
-        console.log('chunk size', size);
-        console.log('limit: ', this.highWaterMark)
-        console.log('readebleLength:', this.readableLength)
-
-        this.limit -= size;
-
-        console.log('eventually limit: ', this.limit)
-        console.log('=====================')
-
-        if (this.limit < 0) {
-            callback(new LimitExceededError())
-        }
-        callback(null, chunk)
-    }
+    callback(null, chunk);
+  }
 }
 
 module.exports = LimitSizeStream;
 
-//============Transform=============//
+// ============Transform=============//
 //
 // const limitStream = new LimitSizeStream({limit: 10, encoding: 'utf-8',});
 // const smile = '😀';
@@ -43,7 +35,7 @@ module.exports = LimitSizeStream;
 // limitStream.write('world');
 // limitStream.end();
 
-//============Writable==============//
+// ============Writable==============//
 // const writebleStream = fs.createWriteStream('output.txt');
 // //
 // // writebleStream.on('data', (chunk) => {
@@ -54,7 +46,7 @@ module.exports = LimitSizeStream;
 // //     console.log('write end');
 // // });
 // //
-//============Readeble==============//
+// ============Readeble==============//
 // // const readebleStream = fs.createReadStream('read.txt', {highWaterMark: 1});
 // // readebleStream.on('data', (chunk) => {
 // //     console.log('read:', chunk.toString())
