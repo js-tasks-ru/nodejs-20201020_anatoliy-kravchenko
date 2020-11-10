@@ -48,7 +48,7 @@ describe('streams/limit-size-stream', () => {
 
       limitStream.on('close', () => {
         expect(limitStream.readableEnded, `стрим должен выбросить ошибку используя событие 'error'`).to.be.false;
-      })
+      });
 
       limitStream.write('a');
       limitStream.write('b');
@@ -57,7 +57,10 @@ describe('streams/limit-size-stream', () => {
 
     it('при проверке лимита должно учитываться количество байт, а не символов', (done) => {
       const smile = '😀';
-      const limitStream = new LimitSizeStream({limit: Buffer.from(smile).length * 2 + 1, encoding: 'utf-8'});
+      const limitStream = new LimitSizeStream({
+        limit: Buffer.from(smile).length * 2 + 1,
+        encoding: 'utf-8',
+      });
 
       const onData = sinon.spy();
 
@@ -80,7 +83,7 @@ describe('streams/limit-size-stream', () => {
 
       limitStream.on('close', () => {
         expect(limitStream.readableEnded, `стрим должен выбросить ошибку используя событие 'error', возможно подсчет байт происходит неверно`).to.be.false;
-      })
+      });
 
       limitStream.write(smile);
       limitStream.write(smile);
